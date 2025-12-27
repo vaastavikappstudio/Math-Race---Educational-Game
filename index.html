@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Race - Educational Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #e63946;
+            --warning: #ffbe0b;
+            --info: #4895ef;
+            --easy: #4cc9f0;
+            --medium: #ffbe0b;
+            --hard: #f72585;
+        }
+
+        body {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Screen Styles */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        /* Header */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Home Screen Styles */
+        #home-screen {
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .game-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #f72585, #ffbe0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .level-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 30px;
+        }
+
+        .level-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 15px;
+            padding: 18px 25px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .level-btn i {
+            font-size: 1.8rem;
+        }
+
+        .level-btn.easy {
+            background: linear-gradient(135deg, var(--easy), #4895ef);
+        }
+
+        .level-btn.medium {
+            background: linear-gradient(135deg, var(--medium), #fb5607);
+        }
+
+        .level-btn.hard {
+            background: linear-gradient(135deg, var(--hard), #e63946);
+        }
+
+        .level-btn.selected {
+            border: 3px solid white;
+            transform: scale(1.05);
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #f72585, #ff006e);
+            border: none;
+            border-radius: 50px;
+            padding: 18px 50px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .how-to-play {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        .how-to-play h3 {
+            margin-bottom: 15px;
+            color: var(--warning);
+        }
+
+        .how-to-play p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        /* Game Screen Styles */
+        #game-screen {
+            padding: 10px 0;
+        }
+
+        .game-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .score-container, .timer-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-container i, .timer-container i {
+            font-size: 1.5rem;
+            color: var(--success);
+        }
+
+        .timer-container i {
+            color: var(--warning);
+        }
+
+        .score-value, .timer-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .level-indicator {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .progress-container {
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--success), var(--info));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .question-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-text {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .answers-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .answer-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 15px;
+            padding: 20px 10px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .answer-btn.correct {
+            background: linear-gradient(135deg, var(--success), #2a9d8f);
+        }
+
+        .answer-btn.wrong {
+            background: linear-gradient(135deg, var(--danger), #d00000);
+        }
+
+        /* Game Over Screen Styles */
+        #game-over-screen {
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .game-over-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .final-score {
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 20px 0;
+            color: var(--warning);
+        }
+
+        .game-over-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px 0;
+        }
+
+        .game-over-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 15px;
+            padding: 18px 25px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-over-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-over-btn.play-again {
+            background: linear-gradient(135deg, var(--success), #2a9d8f);
+        }
+
+        .game-over-btn.share {
+            background: linear-gradient(135deg, var(--info), #4895ef);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .sound-toggle i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        /* Animation for correct/wrong answers */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .bounce {
+            animation: bounce 0.5s ease;
+        }
+
+        /* Floating numbers animation */
+        .floating-numbers {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-number {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.1);
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #e6e6e6;
+        }
+
+        body.dark-theme .how-to-play,
+        body.dark-theme .question-container,
+        body.dark-theme .score-container,
+        body.dark-theme .timer-container,
+        body.dark-theme .level-indicator {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark-theme .progress-container {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .game-title {
+                font-size: 2.5rem;
+            }
+            
+            .question-text {
+                font-size: 2rem;
+            }
+            
+            .answers-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-header-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .game-header-bar > div {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Home Screen -->
+        <div id="home-screen" class="screen active">
+            <div class="game-header">
+                <h1 class="game-title">Math Race</h1>
+                <p class="game-subtitle">Choose Your Level & Start the Race!</p>
+            </div>
+            
+            <div class="level-buttons">
+                <button class="level-btn easy" data-level="easy">
+                    <i class="fas fa-child"></i>
+                    <span>Easy (Ages 5-8)<br><small>Addition & Subtraction</small></span>
+                </button>
+                <button class="level-btn medium" data-level="medium">
+                    <i class="fas fa-user"></i>
+                    <span>Medium (Ages 9-12)<br><small>Multiplication & Division</small></span>
+                </button>
+                <button class="level-btn hard" data-level="hard">
+                    <i class="fas fa-brain"></i>
+                    <span>Hard (Ages 13+)<br><small>Mixed Operations</small></span>
+                </button>
+            </div>
+            
+            <button id="start-btn" class="start-btn">Start Game <i class="fas fa-flag-checkered"></i></button>
+            
+            <div class="how-to-play">
+                <h3><i class="fas fa-info-circle"></i> How to Play</h3>
+                <p><i class="fas fa-check-circle"></i> Select your difficulty level</p>
+                <p><i class="fas fa-clock"></i> Answer math questions before time runs out</p>
+                <p><i class="fas fa-star"></i> Each correct answer gives you 10 points</p>
+                <p><i class="fas fa-trophy"></i> Try to beat your high score!</p>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-header-bar">
+                <div class="score-container">
+                    <i class="fas fa-star"></i>
+                    <div>Score: <span class="score-value">0</span></div>
+                </div>
+                <div class="level-indicator" id="level-indicator">Level: Easy</div>
+                <div class="timer-container">
+                    <i class="fas fa-clock"></i>
+                    <div>Time: <span class="timer-value">30</span>s</div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="question-container">
+                <p>Solve this problem:</p>
+                <h2 class="question-text" id="question-text">5 + 3 = ?</h2>
+                <p><small>Question <span id="current-question">1</span> of <span id="total-questions">10</span></small></p>
+            </div>
+            
+            <div class="answers-container">
+                <button class="answer-btn" data-answer="1">8</button>
+                <button class="answer-btn" data-answer="2">7</button>
+                <button class="answer-btn" data-answer="3">9</button>
+                <button class="answer-btn" data-answer="4">6</button>
+            </div>
+            
+            <div class="how-to-play" style="margin-top: 20px; text-align: center;">
+                <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Answer quickly to earn bonus points!</p>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen">
+            <h1 class="game-over-title">Game Over!</h1>
+            <p>Your final score:</p>
+            <div class="final-score" id="final-score">0</div>
+            
+            <div class="game-over-buttons">
+                <button class="game-over-btn play-again" id="play-again-btn">
+                    <i class="fas fa-redo"></i> Play Again
+                </button>
+                <button class="game-over-btn" id="home-btn">
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <button class="game-over-btn share" id="share-btn">
+                    <i class="fas fa-share-alt"></i> Share Score
+                </button>
+            </div>
+            
+            <div class="how-to-play">
+                <h3><i class="fas fa-trophy"></i> High Scores</h3>
+                <p id="high-scores">Easy: 0 | Medium: 0 | Hard: 0</p>
+                <p id="new-high-score" style="color: var(--warning); display: none;">
+                    <i class="fas fa-crown"></i> New High Score!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sound Toggle -->
+    <div class="sound-toggle" id="sound-toggle">
+        <i class="fas fa-volume-up"></i>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- Floating numbers background -->
+    <div class="floating-numbers" id="floating-numbers"></div>
+
+    <footer>
+        Math Race - Educational Game
+    </footer>
+
+    <script>
+        // Game state
+        const gameState = {
+            currentScreen: 'home',
+            selectedLevel: null,
+            score: 0,
+            timer: 30,
+            timerInterval: null,
+            currentQuestion: 0,
+            totalQuestions: 10,
+            questions: [],
+            soundEnabled: true,
+            darkTheme: false,
+            highScores: {
+                easy: 0,
+                medium: 0,
+                hard: 0
+            }
+        };
+
+        // DOM Elements
+        const homeScreen = document.getElementById('home-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const levelButtons = document.querySelectorAll('.level-btn');
+        const startButton = document.getElementById('start-btn');
+        const scoreValue = document.querySelector('.score-value');
+        const timerValue = document.querySelector('.timer-value');
+        const questionText = document.getElementById('question-text');
+        const answerButtons = document.querySelectorAll('.answer-btn');
+        const finalScore = document.getElementById('final-score');
+        const playAgainButton = document.getElementById('play-again-btn');
+        const homeButton = document.getElementById('home-btn');
+        const shareButton = document.getElementById('share-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const soundToggle = document.getElementById('sound-toggle');
+        const themeToggle = document.getElementById('theme-toggle');
+        const highScoresElement = document.getElementById('high-scores');
+        const newHighScoreElement = document.getElementById('new-high-score');
+        const currentQuestionElement = document.getElementById('current-question');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const levelIndicator = document.getElementById('level-indicator');
+        const floatingNumbers = document.getElementById('floating-numbers');
+
+        // Initialize floating numbers
+        function initFloatingNumbers() {
+            for (let i = 0; i < 20; i++) {
+                const number = document.createElement('div');
+                number.className = 'floating-number';
+                number.textContent = Math.floor(Math.random() * 10);
+                number.style.left = `${Math.random() * 100}%`;
+                number.style.animationDuration = `${15 + Math.random() * 20}s`;
+                number.style.animationDelay = `${Math.random() * 5}s`;
+                floatingNumbers.appendChild(number);
+            }
+        }
+
+        // Load high scores from localStorage
+        function loadHighScores() {
+            const savedScores = localStorage.getItem('mathRaceHighScores');
+            if (savedScores) {
+                gameState.highScores = JSON.parse(savedScores);
+                updateHighScoresDisplay();
+            }
+        }
+
+        // Save high scores to localStorage
+        function saveHighScores() {
+            localStorage.setItem('mathRaceHighScores', JSON.stringify(gameState.highScores));
+        }
+
+        // Update high scores display
+        function updateHighScoresDisplay() {
+            highScoresElement.textContent = `Easy: ${gameState.highScores.easy} | Medium: ${gameState.highScores.medium} | Hard: ${gameState.highScores.hard}`;
+        }
+
+        // Switch between screens
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            document.getElementById(`${screenName}-screen`).classList.add('active');
+            gameState.currentScreen = screenName;
+        }
+
+        // Level selection
+        levelButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                levelButtons.forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+                gameState.selectedLevel = button.dataset.level;
+                startButton.style.display = 'block';
+                
+                // Update level indicator text
+                const levelText = button.dataset.level === 'easy' ? 'Easy' : 
+                                button.dataset.level === 'medium' ? 'Medium' : 'Hard';
+                levelIndicator.textContent = `Level: ${levelText}`;
+            });
+        });
+
+        // Start game
+        startButton.addEventListener('click', () => {
+            if (!gameState.selectedLevel) return;
+            
+            resetGame();
+            generateQuestions();
+            showNextQuestion();
+            startTimer();
+            showScreen('game');
+        });
+
+        // Generate questions based on selected level
+        function generateQuestions() {
+            gameState.questions = [];
+            
+            for (let i = 0; i < gameState.totalQuestions; i++) {
+                let question = {};
+                
+                switch (gameState.selectedLevel) {
+                    case 'easy':
+                        // Addition and subtraction with numbers 1-20
+                        if (Math.random() > 0.5) {
+                            // Addition
+                            const a = Math.floor(Math.random() * 10) + 1;
+                            const b = Math.floor(Math.random() * 10) + 1;
+                            question.text = `${a} + ${b} = ?`;
+                            question.answer = a + b;
+                        } else {
+                            // Subtraction (ensure positive result)
+                            const a = Math.floor(Math.random() * 10) + 10;
+                            const b = Math.floor(Math.random() * 10) + 1;
+                            question.text = `${a} - ${b} = ?`;
+                            question.answer = a - b;
+                        }
+                        break;
+                        
+                    case 'medium':
+                        // Multiplication and division with numbers 1-50
+                        if (Math.random() > 0.5) {
+                            // Multiplication
+                            const a = Math.floor(Math.random() * 8) + 2;
+                            const b = Math.floor(Math.random() * 6) + 2;
+                            question.text = `${a} × ${b} = ?`;
+                            question.answer = a * b;
+                        } else {
+                            // Division (ensure integer result)
+                            const b = Math.floor(Math.random() * 6) + 2;
+                            const answer = Math.floor(Math.random() * 8) + 2;
+                            const a = b * answer;
+                            question.text = `${a} ÷ ${b} = ?`;
+                            question.answer = answer;
+                        }
+                        break;
+                        
+                    case 'hard':
+                        // Mixed operations with brackets and negative numbers
+                        const operations = ['+', '-', '*'];
+                        const op1 = operations[Math.floor(Math.random() * operations.length)];
+                        const op2 = operations[Math.floor(Math.random() * operations.length)];
+                        
+                        let a = Math.floor(Math.random() * 50) + 1;
+                        let b = Math.floor(Math.random() * 50) + 1;
+                        let c = Math.floor(Math.random() * 50) + 1;
+                        
+                        // 50% chance to include negative numbers
+                        if (Math.random() > 0.5) {
+                            a = Math.random() > 0.5 ? a : -a;
+                        }
+                        
+                        // 50% chance to include brackets
+                        if (Math.random() > 0.5) {
+                            question.text = `(${a} ${op1} ${b}) ${op2} ${c} = ?`;
+                            // Calculate with proper operator precedence
+                            let result;
+                            if (op1 === '*') {
+                                result = a * b;
+                            } else if (op1 === '+') {
+                                result = a + b;
+                            } else {
+                                result = a - b;
+                            }
+                            
+                            if (op2 === '*') {
+                                result = result * c;
+                            } else if (op2 === '+') {
+                                result = result + c;
+                            } else {
+                                result = result - c;
+                            }
+                            
+                            question.answer = result;
+                        } else {
+                            question.text = `${a} ${op1} ${b} ${op2} ${c} = ?`;
+                            // Calculate with proper operator precedence
+                            let result;
+                            if (op1 === '*' || op2 === '*') {
+                                // Handle multiplication first
+                                if (op1 === '*') {
+                                    result = a * b;
+                                    if (op2 === '+') {
+                                        result = result + c;
+                                    } else if (op2 === '-') {
+                                        result = result - c;
+                                    } else {
+                                        result = result * c;
+                                    }
+                                } else {
+                                    result = b * c;
+                                    if (op1 === '+') {
+                                        result = a + result;
+                                    } else if (op1 === '-') {
+                                        result = a - result;
+                                    } else {
+                                        result = a * result;
+                                    }
+                                }
+                            } else {
+                                // Left to right for + and -
+                                let firstOp;
+                                if (op1 === '+') {
+                                    firstOp = a + b;
+                                } else {
+                                    firstOp = a - b;
+                                }
+                                
+                                if (op2 === '+') {
+                                    result = firstOp + c;
+                                } else {
+                                    result = firstOp - c;
+                                }
+                            }
+                            
+                            question.answer = result;
+                        }
+                        break;
+                }
+                
+                // Generate wrong answers
+                question.options = generateWrongAnswers(question.answer);
+                gameState.questions.push(question);
+            }
+        }
+
+        // Generate wrong answers that are close to the correct one
+        function generateWrongAnswers(correctAnswer) {
+            const answers = [correctAnswer];
+            
+            while (answers.length < 4) {
+                // Generate answers that are ±1 to ±5 from the correct answer
+                let wrongAnswer;
+                if (Math.random() > 0.5) {
+                    wrongAnswer = correctAnswer + Math.floor(Math.random() * 5) + 1;
+                } else {
+                    wrongAnswer = correctAnswer - Math.floor(Math.random() * 5) - 1;
+                }
+                
+                // For division problems, ensure answers are integers
+                if (gameState.selectedLevel === 'medium' && correctAnswer % 1 === 0) {
+                    wrongAnswer = Math.round(wrongAnswer);
+                }
+                
+                if (!answers.includes(wrongAnswer)) {
+                    answers.push(wrongAnswer);
+                }
+            }
+            
+            // Shuffle the answers
+            return shuffleArray(answers);
+        }
+
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Display the next question
+        function showNextQuestion() {
+            if (gameState.currentQuestion >= gameState.totalQuestions) {
+                endGame();
+                return;
+            }
+            
+            const question = gameState.questions[gameState.currentQuestion];
+            questionText.textContent = question.text;
+            
+            // Update answer buttons
+            answerButtons.forEach((button, index) => {
+                button.textContent = question.options[index];
+                button.dataset.value = question.options[index];
+                button.classList.remove('correct', 'wrong');
+                button.disabled = false;
+            });
+            
+            // Update progress bar
+            progressBar.style.width = `${(gameState.currentQuestion / gameState.totalQuestions) * 100}%`;
+            
+            // Update question counter
+            currentQuestionElement.textContent = gameState.currentQuestion + 1;
+            totalQuestionsElement.textContent = gameState.totalQuestions;
+            
+            gameState.currentQuestion++;
+        }
+
+        // Handle answer selection
+        answerButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const selectedAnswer = parseInt(button.dataset.value);
+                const correctAnswer = gameState.questions[gameState.currentQuestion - 1].answer;
+                
+                // Disable all buttons to prevent multiple clicks
+                answerButtons.forEach(btn => {
+                    btn.disabled = true;
+                });
+                
+                if (selectedAnswer === correctAnswer) {
+                    // Correct answer
+                    button.classList.add('correct');
+                    gameState.score += 10;
+                    
+                    // Bonus for quick answers
+                    if (gameState.timer > 20) gameState.score += 5;
+                    else if (gameState.timer > 10) gameState.score += 2;
+                    
+                    scoreValue.textContent = gameState.score;
+                    button.classList.add('bounce');
+                    
+                    if (gameState.soundEnabled) {
+                        // Play correct sound
+                        playSound('correct');
+                    }
+                } else {
+                    // Wrong answer
+                    button.classList.add('wrong');
+                    
+                    // Highlight the correct answer
+                    answerButtons.forEach(btn => {
+                        if (parseInt(btn.dataset.value) === correctAnswer) {
+                            btn.classList.add('correct');
+                            btn.classList.add('pulse');
+                        }
+                    });
+                    
+                    if (gameState.soundEnabled) {
+                        // Play wrong sound
+                        playSound('wrong');
+                    }
+                }
+                
+                // Move to next question after a short delay
+                setTimeout(() => {
+                    showNextQuestion();
+                }, 1500);
+            });
+        });
+
+        // Sound functions
+        function playSound(type) {
+            // Create audio context for simple sound effects
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (type === 'correct') {
+                    // Correct sound - ascending tone
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                    oscillator.frequency.exponentialRampToValueAtTime(1046.50, audioContext.currentTime + 0.2); // C6
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    // Wrong sound - descending tone
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(392.00, audioContext.currentTime); // G4
+                    oscillator.frequency.exponentialRampToValueAtTime(196.00, audioContext.currentTime + 0.3); // G3
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                }
+            } catch (e) {
+                console.log("Audio not supported");
+            }
+        }
+
+        // Timer functions
+        function startTimer() {
+            gameState.timer = 30;
+            timerValue.textContent = gameState.timer;
+            
+            gameState.timerInterval = setInterval(() => {
+                gameState.timer--;
+                timerValue.textContent = gameState.timer;
+                
+                if (gameState.timer <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(gameState.timerInterval);
+        }
+
+        // Reset game state
+        function resetGame() {
+            gameState.score = 0;
+            gameState.timer = 30;
+            gameState.currentQuestion = 0;
+            scoreValue.textContent = '0';
+            timerValue.textContent = '30';
+            progressBar.style.width = '0%';
+            newHighScoreElement.style.display = 'none';
+            
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+        }
+
+        // End the game
+        function endGame() {
+            stopTimer();
+            
+            // Check if new high score
+            let isNewHighScore = false;
+            if (gameState.score > gameState.highScores[gameState.selectedLevel]) {
+                gameState.highScores[gameState.selectedLevel] = gameState.score;
+                saveHighScores();
+                updateHighScoresDisplay();
+                isNewHighScore = true;
+                newHighScoreElement.style.display = 'block';
+                
+                if (gameState.soundEnabled) {
+                    // Play victory sound
+                    try {
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        // Play a victory fanfare
+                        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                        let currentTime = audioContext.currentTime;
+                        
+                        oscillator.frequency.setValueAtTime(notes[0], currentTime);
+                        
+                        notes.forEach((note, index) => {
+                            oscillator.frequency.setValueAtTime(note, currentTime + index * 0.2);
+                        });
+                        
+                        gainNode.gain.setValueAtTime(0.3, currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 1);
+                        
+                        oscillator.start(currentTime);
+                        oscillator.stop(currentTime + 1);
+                    } catch (e) {
+                        console.log("Audio not supported");
+                    }
+                }
+            }
+            
+            finalScore.textContent = gameState.score;
+            showScreen('game-over');
+        }
+
+        // Play again
+        playAgainButton.addEventListener('click', () => {
+            resetGame();
+            generateQuestions();
+            showNextQuestion();
+            startTimer();
+            showScreen('game');
+        });
+
+        // Return to home
+        homeButton.addEventListener('click', () => {
+            showScreen('home');
+        });
+
+        // Share score
+        shareButton.addEventListener('click', () => {
+            // Use Web Share API if available
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Math Race',
+                    text: `I scored ${gameState.score} points in Math Race on ${gameState.selectedLevel} difficulty! Can you beat my score?`,
+                    url: window.location.href
+                })
+                .catch(error => console.log('Error sharing:', error));
+            } else {
+                // Fallback for browsers without Web Share API
+                const shareText = `I scored ${gameState.score} points in Math Race on ${gameState.selectedLevel} difficulty! Can you beat my score?`;
+                prompt('Copy this text to share:', shareText);
+            }
+        });
+
+        // Sound toggle
+        soundToggle.addEventListener('click', () => {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            const icon = soundToggle.querySelector('i');
+            
+            if (gameState.soundEnabled) {
+                icon.className = 'fas fa-volume-up';
+            } else {
+                icon.className = 'fas fa-volume-mute';
+            }
+        });
+
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            gameState.darkTheme = !gameState.darkTheme;
+            const icon = themeToggle.querySelector('i');
+            
+            if (gameState.darkTheme) {
+                document.body.classList.add('dark-theme');
+                icon.className = 'fas fa-sun';
+            } else {
+                document.body.classList.remove('dark-theme');
+                icon.className = 'fas fa-moon';
+            }
+            
+            // Save theme preference
+            localStorage.setItem('mathRaceTheme', gameState.darkTheme ? 'dark' : 'light');
+        });
+
+        // Initialize the game
+        function init() {
+            loadHighScores();
+            initFloatingNumbers();
+            showScreen('home');
+            
+            // Load theme preference
+            const savedTheme = localStorage.getItem('mathRaceTheme');
+            if (savedTheme === 'dark') {
+                gameState.darkTheme = true;
+                document.body.classList.add('dark-theme');
+                themeToggle.querySelector('i').className = 'fas fa-sun';
+            }
+        }
+
+        // Start the game when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
